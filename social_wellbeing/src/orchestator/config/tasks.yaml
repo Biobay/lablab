@@ -1,0 +1,32 @@
+# Task Orchestratore
+dispatch_task:
+  description: >
+    Analizza la richiesta e assegna task al settore appropriato.
+  expected_output: >
+    Task assegnati e completati dal settore giusto.
+
+# Task per il Settore Salute
+health_monitor_task:
+  description: >
+    Monitora i dati di salute dei cittadini.
+  expected_output: >
+    Report sullo stato di salute.
+
+chronic_patient_task:
+  description: >
+    Pianifica le cure per pazienti cronici.
+  expected_output: >
+    Programma di trattamento creato.
+
+# Task per il Settore Trasporti
+route_planning_task:
+  description: >
+    Pianifica il percorso migliore in base al traffico.
+  expected_output: >
+    Percorso ottimizzato.
+
+traffic_update_task:
+  description: >
+    Fornisci aggiornamenti sul traffico in tempo reale.
+  expected_output: >
+    Report sul traffico aggiornato.
