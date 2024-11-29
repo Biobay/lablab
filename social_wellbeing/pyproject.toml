@@ -1,0 +1,20 @@
+[project]
+name = "social_wellbeing"
+version = "0.1.0"
+description = "social_wellbeing using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<=3.13"
+dependencies = [
+    "crewai[tools]>=0.83.0,<1.0.0"
+]
+
+[project.scripts]
+social_wellbeing = "social_wellbeing.main:run"
+run_crew = "social_wellbeing.main:run"
+train = "social_wellbeing.main:train"
+replay = "social_wellbeing.main:replay"
+test = "social_wellbeing.main:test"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
