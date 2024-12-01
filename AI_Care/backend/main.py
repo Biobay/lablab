@@ -1,55 +1,56 @@
+import uvicorn
 from fastapi import FastAPI
-from crewai import Agent, Task, Crew
-from crewai.tasks import TaskOutput
-from dotenv import load_dotenv
-import os
+from fastapi.middleware.cors import CORSMiddleware
+from database import init_db
+from api import router as api_router
 
-load_dotenv()
+# Inizializzazione del server FastAPI
+app = FastAPI(title="AI CARE - Sistema Segnalazioni Intelligenti")
 
-app = FastAPI()
-
-# Define your agents
-researcher = Agent(
-    role='Researcher',
-    goal='Research and analyze patient data',
-    backstory='You are an expert medical researcher with years of experience in analyzing patient data.',
-    verbose=True,
-    allow_delegation=False
+# Configurazione CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In produzione, specificare i domini consentiti
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-doctor = Agent(
-    role='Doctor',
-    goal='Provide medical recommendations',
-    backstory='You are an experienced doctor specializing in providing medical recommendations based on patient data.',
-    verbose=True,
-    allow_delegation=False
+# Include le rotte definite nell'API
+app.include_router(api_router)
+
+if __name__ == "__main__":import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from database import init_db
+from api import router as api_router
+
+# Inizializzazione del server FastAPI
+app = FastAPI(title="AI CARE - Sistema Segnalazioni Intelligenti")
+
+# Configurazione CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In produzione, specificare i domini consentiti
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-@app.post("/analyze-patient")
-async def analyze_patient(patient_data: dict):
-    # Create tasks for your agents
-    research_task = Task(
-        description=f"Analyze the following patient data and create a detailed report: {patient_data}",
-        agent=researcher
-    )
-    
-    recommendation_task = Task(
-        description="Based on the research report, provide medical recommendations",
-        agent=doctor
-    )
+# Include le rotte definite nell'API
+app.include_router(api_router)
 
-    # Create a crew with your agents
-    crew = Crew(
-        agents=[researcher, doctor],
-        tasks=[research_task, recommendation_task],
-        verbose=True
-    )
-
-    # Execute the crew's tasks
-    result = crew.kickoff()
-    
-    return {"analysis": result}
+# Aggiungi un endpoint di base
+@app.get("/")
+async def read_root():
+    return {"message": "Benvenuto nell'API AI CARE"}
 
 if __name__ == "__main__":
-    import uvicorn
+    print("Inizializzazione del database...")
+    init_db()  # Inizializza il database
+    print("Avvio del server AI CARE...")
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, log_level="info")
+    print("Inizializzazione del database...")
+    init_db()  # Inizializza il database
+    print("Avvio del server AI CARE...")
     uvicorn.run(app, host="0.0.0.0", port=8000)
