@@ -12,23 +12,44 @@ chat = ChatGroq(
 )
 
 # Template per analisi
-system = """Sei un assistente specializzato nell'analisi di segnalazioni urbane.
-Analizza la segnalazione e fornisci una risposta strutturata che includa:
-1. Classificazione del problema
-2. Livello di priorità (alta/media/bassa)
-3. Suggerimenti per la risoluzione
-4. Tempo stimato per l'intervento."""
-
-human = "{input}"
+system_prompt = """
+Sei un assistente che analizza segnalazioni urbane.
+Per ogni segnalazione, fornisci una risposta strutturata che includa:
+1. Classificazione del problema (es. buca, lampione rotto, rifiuti).
+2. Livello di priorità del problema (alta, media, bassa).
+3. Suggerimenti per la risoluzione.
+4. Tempo stimato per l'intervento.
+5. Se possibile, suggerisci una modalità per aggirare o schivare il problema (es. percorso alternativo, evitare la zona, ecc.).
+"""
 
 prompt = ChatPromptTemplate.from_messages([
-    ("system", system),
-    ("human", human)
+    ("system", system_prompt),
+    ("human", "{input}")
 ])
 
-# Catena per generare la risposta
-chain = prompt | chat
-
-async def analyze_with_ai(input_text: str) -> str:
+# Funzione per analizzare con l'AI
+async def analyze_with_ai(input_text: str) -> dict:
+    """
+    Analizza il testo fornito dall'utente utilizzando un modello AI
+    e restituisce una risposta strutturata.
+    
+    :param input_text: Descrizione fornita dall'utente.
+    :return: Dizionario con classificazione, priorità, suggerimenti, tempo stimato e suggerimenti per aggirare il problema.
+    """
+    # Crea la catena di analisi
+    chain = prompt | chat
     response = await chain.ainvoke({"input": input_text})
-    return response.content
+    
+    # Parsing della risposta AI
+    try:
+        lines = response.content.strip().split("\n")
+        result = {
+            "classificazione": lines[0].split(":")[1].strip(),
+            "priorita": lines[1].split(":")[1].strip(),
+            "suggerimenti": lines[2].split(":")[1].strip(),
+            "tempo_stimato": lines[3].split(":")[1].strip(),
+            "aggirare": lines[4].split(":")[1].strip()  # Nuovo campo per il suggerimento
+        }
+        return result
+    except Exception as e:
+        raise ValueError(f"Errore nel parsing della risposta AI: {e}")
